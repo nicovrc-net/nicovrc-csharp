@@ -1,19 +1,17 @@
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace net.nicovrc.dev
 {
     public class HTTPFunc
     {
-        private static string http_patten1 = "(GET|HEAD|OPTIONS|TRACE|PUT|DELETE|POST|PATCH|CONNECT) (.+) HTTP/(\\d\\.\\d)";
+        private static string http_patten1 = "(GET|HEAD|OPTIONS|TRACE|PUT|DELETE|POST|PATCH|CONNECT) (.*) HTTP/(.*)";
 
-        public static byte[] CreateHTTPData(String httpVersion, int httpCode, String contentType, String contentEncoding, String redirectUrl, byte[] body)
+        public static byte[] CreateHTTPData(String? httpVersion, int httpCode, string? contentType, string? contentEncoding, string? redirectUrl, byte[] body)
         {
 
-            if (httpVersion == null)
-            {
-                httpVersion = "1.1";
-            }
+            httpVersion = httpVersion ?? "1.1";
 
             string httpMessage = "";
             if (httpCode == 200)
@@ -63,7 +61,7 @@ namespace net.nicovrc.dev
             string date = DateTime.UtcNow.ToString("R");
             string httpHeader2 = "\nDate: " + date;
 
-            if (contentEncoding != null)
+            if (contentEncoding is not null)
             {
                 httpHeader2 += "\nContent-Encoding: " + contentEncoding;
             }
@@ -85,26 +83,70 @@ namespace net.nicovrc.dev
             return result;
         }
 
-        public static string GetHTTPMethod(string httpResponse)
+        public static string? GetHTTPMethod(string httpResponse)
         {
             // GET / HTTP/1.1
-            MatchCollection value = Regex.Matches(httpResponse, http_patten1);
+            try
+            {
+                string[] h = httpResponse.Split("\n");
+                Match value = Regex.Match(h[0], http_patten1, RegexOptions.IgnoreCase);
+                if (value.Groups.Count == 4)
+                {
+                    return value.Groups[1].Value;
+                }
 
-            return value[0].Value;
+                return null;
+            } catch (Exception e)
+            {
+                string? stackTrace = e.StackTrace;
+                Console.WriteLine(stackTrace);
+                return null;
+            }
         }
 
-        public static string GetHTTPURI(string httpResponse)
+        public static string? GetHTTPURI(string httpResponse)
         {
             // GET / HTTP/1.1
-            MatchCollection value = Regex.Matches(httpResponse, http_patten1);
-            return value[1].Value;
+            try
+            {
+                string[] h = httpResponse.Split("\n");
+                //Console.WriteLine(httpResponse);
+                //Console.WriteLine(h[0]);
+                Match value = Regex.Match(h[0], http_patten1, RegexOptions.IgnoreCase);
+                //Console.WriteLine(value.Groups.Count);
+                if (value.Groups.Count == 4)
+                {
+                    return value.Groups[2].Value;
+                }
+
+                return null;
+            } catch (Exception e)
+            {
+                string? stackTrace = e.StackTrace;
+                Console.WriteLine(stackTrace);
+                return null;
+            }
         }
 
-        public static string GetHTTPVersion(string httpResponse)
+        public static string? GetHTTPVersion(string httpResponse)
         {
             // GET / HTTP/1.1
-            MatchCollection value = Regex.Matches(httpResponse, http_patten1);
-            return value[2].Value;
+            try
+            {
+                string[] h = httpResponse.Split("\n");
+                Match value = Regex.Match(h[0], http_patten1, RegexOptions.IgnoreCase);
+                if (value.Groups.Count == 4)
+                {
+                    return value.Groups[3].Value;
+                }
+
+                return null;
+            } catch (Exception e)
+            {
+                string? stackTrace = e.StackTrace;
+                Console.WriteLine(stackTrace);
+                return null;
+            }
         }
     }
 }

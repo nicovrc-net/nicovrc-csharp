@@ -74,14 +74,18 @@ namespace net.nicovrc.dev
 
                         //GetURL.SayHello();                    
                     
-                        string uri = HTTPFunc.GetHTTPURI(msg);
+                        string uri = HTTPFunc.GetHTTPURI(msg) ?? "/";
+                        byte[] body = Encoding.UTF8.GetBytes("nicovrc-csharp/"+NicovrcSetting.Version+"\n\n"+msg);
 
-                        if (uri.StartsWith("/?url=")){
-                        
+                        //Console.WriteLine(uri);
+                        if (uri.StartsWith("/?url="))
+                        {
+                            body = Encoding.UTF8.GetBytes("Bad Request");
+                            await conn.SendAsync(GetURL.Run(msg, uri) ?? HTTPFunc.CreateHTTPData(HTTPFunc.GetHTTPVersion(msg), 503, "text/plain; charset=UTF-8", null, null, body));
+                            return;
                         }
 
-                        byte[] body = Encoding.UTF8.GetBytes("nicovrc-csharp/"+NicovrcSetting.Version);
-                        await conn.SendAsync(HTTPFunc.CreateHTTPData("1.1", 200, "text/plain; charset=UTF-8", "", "", body));
+                        await conn.SendAsync(HTTPFunc.CreateHTTPData(null, 200, "text/plain; charset=UTF-8", null, null, body));
                     };
 
                     await conn.StartReceiveAsync(CancellationToken.None);
