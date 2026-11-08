@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -80,8 +81,16 @@ namespace net.nicovrc.dev
                         //Console.WriteLine(uri);
                         if (uri.StartsWith("/?url="))
                         {
-                            body = Encoding.UTF8.GetBytes("Bad Request");
-                            await conn.SendAsync(GetURL.Run(msg, uri) ?? HTTPFunc.CreateHTTPData(HTTPFunc.GetHTTPVersion(msg), 503, "text/plain; charset=UTF-8", null, null, body));
+                            try
+                            {
+                                URLResult r = await GetURL.Run(msg, uri);
+                                await conn.SendAsync(HTTPFunc.CreateHTTPData(HTTPFunc.GetHTTPVersion(msg), 200, r.getContentType(), null, null, r.GetBody() ?? []));
+                            } catch (Exception)
+                            {
+                                body = Encoding.UTF8.GetBytes("Bad Request");
+                                await conn.SendAsync(HTTPFunc.CreateHTTPData(HTTPFunc.GetHTTPVersion(msg), 503, "text/plain; charset=UTF-8", null, null, body));
+                            }
+                            
                             return;
                         }
 
