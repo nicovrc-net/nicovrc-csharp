@@ -166,7 +166,7 @@ namespace net.nicovrc.dev.site
                     StringContent jsonContent = new(videoHlsData,Encoding.UTF8,"application/json");
 
                     httpResponseMessage = await client.PostAsync(apiUrl, jsonContent);
-                    Console.WriteLine(httpResponseMessage.StatusCode);
+                    //Console.WriteLine(httpResponseMessage.StatusCode);
                     if (((int)httpResponseMessage.StatusCode) >= 200 && ((int)httpResponseMessage.StatusCode) < 300)
                     {
                         response = await httpResponseMessage.Content.ReadAsStringAsync();
