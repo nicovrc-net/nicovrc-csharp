@@ -66,7 +66,7 @@ namespace net.nicovrc.dev
                 httpHeader2 += "\nContent-Encoding: " + contentEncoding;
             }
 
-            string httpHeader3 = "Content-Type: " + contentType + "\n" + "Content-Length: " + bodyLength;
+            string httpHeader3 = "\nContent-Type: " + contentType + "\n" + "Content-Length: " + bodyLength;
             if (httpCode == 302 && redirectUrl != null)
             {
                 httpHeader3 = "\nLocation: " + redirectUrl;
